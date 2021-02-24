@@ -1,5 +1,5 @@
 const http = require('http');
-const { PassThrough } = require('stream');
+const { PassThrough, Transform } = require('stream');
 const DynamoDB = require('aws-sdk/clients/dynamodb')
 
 http.createServer(onRequest).listen(8000);
@@ -7,6 +7,7 @@ http.createServer(onRequest).listen(8000);
 const dynamodb = new DynamoDB({ endpoint: 'http://localhost:5000', region: 'eu-west-1' })
 function onRequest(client_req, client_res) {
 	const pass = new PassThrough();
+	
 	const options = {
     hostname: 'localhost',
     port: 5000,
@@ -36,25 +37,27 @@ function onRequest(client_req, client_res) {
     });
   });
 
-
-	pass.on('data', async (chunk) => {
-		// console.log('REQUEST')
-		// console.log(client_req.headers)
-		
-		if(client_req.headers['x-amz-target'].includes('UpdateItem')) {
-			const body = JSON.parse(chunk.toString())
-			streamEvent['TableName'] = body.TableName;
-			streamEvent.dynamodb['Keys'] = body.Key;
-			
-			/** THIS IS RUNNING AFTER THE UPDATE PASSTHROUGH STREAMS ARE WRONG FOR THIS.... NEED to use a transform stream maybe idk*/
-			const result = await dynamodb.getItem({ TableName: body.TableName, Key: streamEvent.dynamodb['Keys'] }).promise().catch(console.log)
-			
-			streamEvent.dynamodb['OldKey'] = result.Item
+	const transform = new Transform({
+		objectMode: true,
+		async transform(chunk, _, callback) {
+			console.log(chunk.toString())
+			console.log(client_req.headers['x-amz-target'])
+			if(client_req.headers['x-amz-target'].includes('UpdateItem')) {
+				const body = JSON.parse(chunk.toString())
+				streamEvent['TableName'] = body.TableName;
+				streamEvent.dynamodb['Keys'] = body.Key;
+				
+				/** THIS IS RUNNING AFTER THE UPDATE PASSTHROUGH STREAMS ARE WRONG FOR THIS.... NEED to use a transform stream maybe idk*/
+				const result = await dynamodb.getItem({ TableName: body.TableName, Key: streamEvent.dynamodb['Keys'] }).promise().catch(console.log)
+				
+				streamEvent.dynamodb['OldKey'] = result.Item
+			}
+			callback(null, chunk)
 		}
-	 });
+	});
 	
-	client_req.pipe(pass)
-  pass.pipe(proxy, {
+	client_req.pipe(transform)
+  transform.pipe(proxy, {
     end: true
   });
 }
