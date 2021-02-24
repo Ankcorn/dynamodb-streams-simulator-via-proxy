@@ -1,2 +1,26 @@
-# [WIP] dynamodb-streams-simulator-via-proxy
- 
+# [WIP] dynamodb-streams-via-proxy
+
+I wrote this when my puppy woke up at 5am and wouldnt go back to bed without me in the room so its a total mess...
+
+Run this with npm start
+
+Set the aws-sdk to use port 8000
+
+run dynalite or dynamodb-local on port 5000
+
+logs out the stream evnet thing (currently the wrong format)
+
+Issues:
+
+old image is actually new image. See comment (streams are hard, lol) I should probably have used a proxy lib that made the code easier to follow
+
+need to handle removes and inserts, also make valid events
+
+Need api, was thinking
+
+```javascript
+await dynamoStreamProxy.start(config);
+dynamodbStreamProxy.on('event', async (e) => {
+    await invokeLambda('lambda-name', e);
+})
+```
