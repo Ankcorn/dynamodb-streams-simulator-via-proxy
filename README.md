@@ -1,2 +1,2 @@
-# dynamodb-streams-via-proxy
+# [WIP] dynamodb-streams-via-proxy
  
