@@ -40,8 +40,6 @@ function onRequest(client_req, client_res) {
 	const transform = new Transform({
 		objectMode: true,
 		async transform(chunk, _, callback) {
-			console.log(chunk.toString())
-			console.log(client_req.headers['x-amz-target'])
 			if(client_req.headers['x-amz-target'].includes('UpdateItem')) {
 				const body = JSON.parse(chunk.toString())
 				streamEvent['TableName'] = body.TableName;
