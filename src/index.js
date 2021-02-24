@@ -45,9 +45,7 @@ function onRequest(client_req, client_res) {
 				streamEvent['TableName'] = body.TableName;
 				streamEvent.dynamodb['Keys'] = body.Key;
 				
-				/** THIS IS RUNNING AFTER THE UPDATE PASSTHROUGH STREAMS ARE WRONG FOR THIS.... NEED to use a transform stream maybe idk*/
 				const result = await dynamodb.getItem({ TableName: body.TableName, Key: streamEvent.dynamodb['Keys'] }).promise().catch(console.log)
-				
 				streamEvent.dynamodb['OldKey'] = result.Item
 			}
 			callback(null, chunk)
