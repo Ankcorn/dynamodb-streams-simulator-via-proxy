@@ -27,7 +27,7 @@ function onRequest(client_req, client_res) {
 			if(streamEvent.dynamodb.Keys) {
 				const result = await dynamodb.getItem({ TableName: streamEvent.TableName, Key: streamEvent.dynamodb.Keys }).promise().catch(console.log)
 				streamEvent.dynamodb['NewKey'] = result.Item
-				console.log(streamEvent)
+				console.log(JSON.stringify(streamEvent, null, 2))
 			}
 		});
 
@@ -43,12 +43,11 @@ function onRequest(client_req, client_res) {
 		
 		if(client_req.headers['x-amz-target'].includes('UpdateItem')) {
 			const body = JSON.parse(chunk.toString())
-			console.log(body)
 			streamEvent['TableName'] = body.TableName;
 			streamEvent.dynamodb['Keys'] = body.Key;
 			
+			/** THIS IS RUNNING AFTER THE UPDATE PASSTHROUGH STREAMS ARE WRONG FOR THIS.... NEED to use a transform stream maybe idk*/
 			const result = await dynamodb.getItem({ TableName: body.TableName, Key: streamEvent.dynamodb['Keys'] }).promise().catch(console.log)
-			console.log(result)
 			
 			streamEvent.dynamodb['OldKey'] = result.Item
 		}
