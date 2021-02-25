@@ -11,9 +11,6 @@ run dynalite or dynamodb-local on port 5000
 logs out the stream evnet thing (currently the wrong format)
 
 Issues:
-
-old image is actually new image. See comment (streams are hard, lol) I should probably have used a proxy lib that made the code easier to follow
-
 need to handle removes and inserts, also make valid events
 
 Need api, was thinking
