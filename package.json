@@ -5,12 +5,15 @@
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "jest"
   },
   "author": "Thomas Ankcorn <thomasankcorn@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "aws-sdk": "^2.850.0",
-    "undici": "^3.3.3"
+    "aws-sdk": "^2.850.0"
+  },
+  "devDependencies": {
+    "dynalite": "^3.2.1",
+    "jest": "^26.6.3"
   }
 }

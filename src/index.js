@@ -5,7 +5,7 @@ const DynamoDB = require('aws-sdk/clients/dynamodb')
 
 function dynamodbStreamProxy(config) {
 	const dynamodb = new DynamoDB({ endpoint: 'http://localhost:5000' || config.endpoint, region: process.env.AWS_REGION || config.region });
-	http.createServer(onRequest).listen(8000);
+	const server = http.createServer(onRequest).listen(8000);
 	const emitter = new EventEmitter();
 	
 	function onRequest(client_req, client_res) {	
@@ -59,8 +59,10 @@ function dynamodbStreamProxy(config) {
 		});
 	}
 
-	return emitter
+	return {
+		on: emitter.on,
+		close: server.close()
+	}
 }
 
-const proxy = dynamodbStreamProxy({ region: 'eu-west-1' })
-proxy.on('event', console.log)
+module.exports = dynamodbStreamProxy
