@@ -1,14 +1,14 @@
 const http = require('http');
 const { PassThrough, Transform } = require('stream');
 const EventEmitter = require('events');
-const DynamoDB = require('aws-sdk/clients/dynamodb')
+const DynamoDB = require('aws-sdk/clients/dynamodb');
 
 function dynamodbStreamProxy(config) {
 	const dynamodb = new DynamoDB({ endpoint: 'http://localhost:5000' || config.endpoint, region: process.env.AWS_REGION || config.region });
-	const server = http.createServer(onRequest).listen(8000);
 	const emitter = new EventEmitter();
-	
+
 	function onRequest(client_req, client_res) {	
+		// console.log(client_req)
 		const options = {
 			hostname: 'localhost',
 			port: 5000,
@@ -18,9 +18,9 @@ function dynamodbStreamProxy(config) {
 		};
 		const streamEvent = {
 			dynamodb: {},
-		}
+		};
 		const proxy = http.request(options, function (res) {
-	
+			console.log(res.statusCode)
 			const pass = new PassThrough();
 			client_res.writeHead(res.statusCode, res.headers)
 			res.pipe(pass)
@@ -28,7 +28,7 @@ function dynamodbStreamProxy(config) {
 			pass.on('data', async () => { 
 				if(streamEvent.dynamodb.Keys) {
 					const result = await dynamodb.getItem({ TableName: streamEvent.TableName, Key: streamEvent.dynamodb.Keys }).promise().catch(console.log)
-					streamEvent.dynamodb['NewKey'] = result.Item
+					streamEvent.dynamodb['NewKey'] = result && result.Item
 					emitter.emit('event', streamEvent)
 				}
 			});
@@ -47,7 +47,7 @@ function dynamodbStreamProxy(config) {
 					streamEvent.dynamodb['Keys'] = body.Key;
 					
 					const result = await dynamodb.getItem({ TableName: body.TableName, Key: streamEvent.dynamodb['Keys'] }).promise().catch(console.log)
-					streamEvent.dynamodb['OldKey'] = result.Item
+					streamEvent.dynamodb['OldKey'] = result  && result.Item
 				}
 				callback(null, chunk)
 			}
@@ -58,11 +58,14 @@ function dynamodbStreamProxy(config) {
 			end: true
 		});
 	}
-
-	return {
-		on: emitter.on,
-		close: server.close()
-	}
+	return new Promise((resolve, reject) => {
+		const server = http.createServer(onRequest).listen(8000, () => {
+			resolve({
+				on: emitter.on,
+				close: server.close
+			});
+		});
+	});
 }
 
 module.exports = dynamodbStreamProxy
