@@ -64,11 +64,12 @@ describe("Emits an event when a record is inserted into dynamodb", () => {
         "arn:aws:dynamodb:eu-west-1:🦊:table/dynamodb-streams-test-experiment-NewTable-UK5PFMFS64LS/stream/2020-07-16T21:40:16.987",
       eventVersion: "1.1",
     });
-		await streamProxy.server.close()
+    await streamProxy.server.close();
   }, 10000);
 
   it("Updates an item", async () => {
-    await client.doculite.put({
+    await client.doculite
+      .put({
         TableName: "dummy",
         Item: {
           id: "1",
@@ -84,16 +85,18 @@ describe("Emits an event when a record is inserted into dynamodb", () => {
     const streamProxy = await dynamodbStreamProxy();
     const event = jest.fn();
     streamProxy.emitter.on("event", event);
-    await client.proxy.update({
-      TableName: 'dummy',
-      Key: {
-        id: "1"
-      },
-      UpdateExpression: 'SET f1 = :c',
-      ExpressionAttributeValues: {
-        ":c": 3
-      }
-    }).promise()
+    await client.proxy
+      .update({
+        TableName: "dummy",
+        Key: {
+          id: "1",
+        },
+        UpdateExpression: "SET f1 = :c",
+        ExpressionAttributeValues: {
+          ":c": 3,
+        },
+      })
+      .promise();
     expect(event).toBeCalledWith({
       awsRegion: "eu-west-1",
       dynamodb: {
@@ -124,11 +127,12 @@ describe("Emits an event when a record is inserted into dynamodb", () => {
         "arn:aws:dynamodb:eu-west-1:🦊:table/dynamodb-streams-test-experiment-NewTable-UK5PFMFS64LS/stream/2020-07-16T21:40:16.987",
       eventVersion: "1.1",
     });
-		await streamProxy.server.close()
+    await streamProxy.server.close();
   }, 10000);
 
   it("Removes an item", async () => {
-    await client.doculite.put({
+    await client.doculite
+      .put({
         TableName: "dummy",
         Item: {
           id: "1",
@@ -144,12 +148,14 @@ describe("Emits an event when a record is inserted into dynamodb", () => {
     const streamProxy = await dynamodbStreamProxy();
     const event = jest.fn();
     streamProxy.emitter.on("event", event);
-    await client.proxy.delete({
-      TableName: 'dummy',
-      Key: {
-        id: "1"
-      }
-    }).promise()
+    await client.proxy
+      .delete({
+        TableName: "dummy",
+        Key: {
+          id: "1",
+        },
+      })
+      .promise();
     expect(event).toBeCalledWith({
       awsRegion: "eu-west-1",
       dynamodb: {
@@ -174,7 +180,7 @@ describe("Emits an event when a record is inserted into dynamodb", () => {
         "arn:aws:dynamodb:eu-west-1:🦊:table/dynamodb-streams-test-experiment-NewTable-UK5PFMFS64LS/stream/2020-07-16T21:40:16.987",
       eventVersion: "1.1",
     });
-		await streamProxy.server.close()
+    await streamProxy.server.close();
   }, 10000);
   afterEach((done) => {
     dynalite.close(done);
