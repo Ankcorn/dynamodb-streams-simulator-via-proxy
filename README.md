@@ -1,20 +1,25 @@
-# [WIP] dynamodb-streams-via-proxy
+# dynamodb-streams-via-proxy
 
-I wrote this when my puppy woke up at 5am and wouldnt go back to bed without me in the room so its a total mess...
+Proxies requests to a local dynamodb instance (dynalite or dynamodb local) and emits events for INSERTS, UPDATES and REMOVES. This makes it easier to mock dynamodb streams for local development.
+
+## Getting Started
+
+Run `npm i dynamodb-streams-via-proxy`
+
+Example usage
 
 ```javascript
-const dynamodbStreamProxy = require('wip');
-const proxy = dynamodbStreamProxy({ region: 'eu-west-1' })
-proxy.on('event', console.log);
+const dynamodbStreamProxy = require('dynamodb-streams-via-proxy');
+const streamProxy = await dynamodbStreamProxy();
+streamProxy.emitter.on("event", (record => {
+	// record is a single change
+});
+
+await streamProxy.server.close()
 ```
 
-or you know invoke your lambda
+dynamodbStreamProxy takes the following options
 
-Set the aws-sdk to use port 8000
-
-run dynalite or dynamodb-local on port 5000
-
-logs out the stream evnet thing (currently the wrong format)
-
-Issues:
-need to handle removes and inserts, also make valid events
+* dbEndpoint - the endpoint of your local dynamodb instance. Defaults to `http://localhost:5000`
+* dbRegion - the region of the local dynamodb instance. Defaults to `process.env.AWS_REGION`
+* proxyPort - the endpoint clients should make requests to. Defaults to `8000`
