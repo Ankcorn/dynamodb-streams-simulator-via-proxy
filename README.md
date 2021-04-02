@@ -20,6 +20,6 @@ await streamProxy.server.close()
 
 dynamodbStreamProxy takes the following options
 
-* dbEndpoint - the endpoint of your local dynamodb instance. Defaults to `http://localhost:5000`
+* dbPort - the port of your local dynamodb instance. Defaults to `8000`
 * dbRegion - the region of the local dynamodb instance. Defaults to `process.env.AWS_REGION`
-* proxyPort - the endpoint clients should make requests to. Defaults to `8000`
+* proxyPort - the endpoint clients should make requests to. Defaults to `5000`

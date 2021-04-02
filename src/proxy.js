@@ -1,12 +1,12 @@
 const http = require("http");
 const { Transform } = require("stream");
 
-function startProxy(port, incoming, outgoing) {
+function startProxy(config, incoming, outgoing) {
   function onRequest(client_req, client_res) {
     let state;
     const options = {
       hostname: "localhost",
-      port: 5000,
+      port: config.dbPort || 8000,
       path: client_req.url,
       method: client_req.method,
       headers: client_req.headers,
@@ -45,7 +45,7 @@ function startProxy(port, incoming, outgoing) {
 
   return new Promise((resolve) => {
     const server = http.createServer(onRequest);
-    server.listen(port, () => {
+    server.listen(config.proxtPort || 5000, () => {
       resolve(server);
     });
   });

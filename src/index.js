@@ -4,7 +4,7 @@ const createProxy = require("./proxy");
 
 async function dynamodbStreamProxy(config) {
   const dynamodb = new DynamoDB({
-    endpoint: config.dbEndpoint || "http://localhost:5000",
+    endpoint: `http://localhost:${config.dbPort || 8000}`,
     region: process.env.AWS_REGION || config.dbRegion,
   });
   const emitter = new EventEmitter();
@@ -16,7 +16,7 @@ async function dynamodbStreamProxy(config) {
   };
 
   const server = await createProxy(
-    config.proxyPort || 8000,
+    config,
     async (req) => {
       const TableName = req.body.TableName;
       const body = req.body.Item;
