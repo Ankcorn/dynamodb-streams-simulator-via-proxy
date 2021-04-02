@@ -18,10 +18,15 @@ async function dynamodbStreamProxy(config) {
   const server = await createProxy(
     config,
     async (req) => {
+      if(!eventTypes[req.headers["x-amz-target"]]) {
+        console.log('nooop')
+        return 'noop'
+      }
       const TableName = req.body.TableName;
       const body = req.body.Item;
       const { Table } = await dynamodb.describeTable({ TableName }).promise();
       const eventName = eventTypes[req.headers["x-amz-target"]];
+      
       const Keys =
         req.body.Key ||
         Table.KeySchema.reduce(
@@ -56,6 +61,9 @@ async function dynamodbStreamProxy(config) {
       };
     },
     async (state) => {
+      if(state === 'noop') {
+        return
+      }
       const { Item: NewImage } = await dynamodb
         .getItem({ TableName: state.TableName, Key: state.dynamodb.Keys })
         .promise();
